@@ -2,25 +2,16 @@ import nodemailer from "nodemailer";
 
 export async function sendPhoneOtp(number, otp) {
     try {
-        let baseUrl = "https://www.fast2sms.com/dev/bulkV2";
-        const querParams = new URLSearchParams({
-            authorization:
-                "w0d8sQkyt4aIiJ5BcKFfVPxLueZSXoMqATgmUlW1G97Y6NvjzRhBczyNPs9SXtpU6jMurlLqGwavWZJ5",
-            variables_values: `${otp}`,
-            route: "q",
-            numbers: number,
-        });
-        const headers = {
-            "cache-control": "no-cache",
+        var requestOptions = {
+            method: "GET",
+            redirect: "follow",
         };
-        const url = `${baseUrl}?${querParams.toString()}`;
-
-        let res = await fetch(url, { method: "GET", headers });
+        let res = await fetch(
+            `https://2factor.in/API/V1/6fe20a5a-2a1f-11ef-8b60-0200cd936042/SMS/${number}/${otp}/OTP1`,
+            requestOptions
+        );
         res = await res.json();
-        console.log(res);
-        if (!res) throw Error("Server error");
-        if (res?.return === true) return true;
-        return false;
+        return res?.Status === "Success" ? true : false;
     } catch (error) {
         return false;
     }

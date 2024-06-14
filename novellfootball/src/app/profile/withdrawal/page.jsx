@@ -28,38 +28,20 @@ function Page() {
     const [loading, setLoading] = useState(true);
     let { getAlert } = useContext(AlertContext);
     const [Amount, updateAmount] = useState(0);
-    const [withdrawReady, setWithdrawReady] = useState(false);
     const router = useRouter();
 
     async function verify() {
         let EnteredOtp = otp.join("");
         EnteredOtp = Number(EnteredOtp);
         let cookies = document.cookie;
-        let providedOtp;
-        const [name, value] = cookies.split("=");
-        if (name === "otp") {
-            providedOtp = value;
-        }
+        const providedOtp = cookies
+            .split("; ")
+            .find((row) => row.startsWith("otp" + "="))
+            ?.split("=")[1];
+
         if (EnteredOtp === Number(providedOtp)) {
             setVerified(true);
-            updateEditBank(true);
-            return true;
-        }
-        setVerified(false);
-        return false;
-    }
-
-    async function verify_transfer_otp() {
-        let EnteredOtp = otp.join("");
-        EnteredOtp = Number(EnteredOtp);
-        let cookies = document.cookie;
-        let providedOtp;
-        const [name, value] = cookies.split("=");
-        if (name === "otp") {
-            providedOtp = value;
-        }
-        if (EnteredOtp === Number(providedOtp)) {
-            updateEditBank(true);
+            updating && updateEditBank(true);
             return true;
         }
         setVerified(false);
@@ -111,11 +93,10 @@ function Page() {
     async function withdraw() {
         try {
             getAlert();
-            // let isVerified = await verify_transfer_otp();
-            // if (!withdrawReady) {
-            //     getAlert("opps", "Incorrect otp.");
-            //     return;
-            // }
+            if (!isVerified) {
+                getAlert("opps", "Incorrect otp.");
+                return;
+            }
             let isValidTime = await validateTime();
             if (!isValidTime) {
                 getAlert(
@@ -173,40 +154,6 @@ function Page() {
             updateVerificationMethod(!userOtherData?.International);
         }
     }, [userBalance, userOtherData]);
-
-    function afterVerification(phoneNumber) {
-        try {
-            if (Number(userOtherData?.PhoneNumber) !== Number(phoneNumber)) {
-                getAlert(
-                    "opps",
-                    `please verify the same number you registered with ending with ${userOtherData?.PhoneNumber?.slice(
-                        -3
-                    )}.`
-                );
-            } else {
-                setWithdrawReady(true);
-            }
-        } catch (error) {
-            getAlert("opps", "something went wrong");
-        }
-    }
-    function editBankings(phoneNumber) {
-        try {
-            if (Number(userOtherData?.PhoneNumber) !== Number(phoneNumber)) {
-                getAlert(
-                    "opps",
-                    `please verify the same number you registered with ending with ${userOtherData?.PhoneNumber?.slice(
-                        -3
-                    )}.`
-                );
-            } else {
-                setVerified(true);
-                updateEditBank(true);
-            }
-        } catch (error) {
-            getAlert("opps", "something went wrong");
-        }
-    }
 
     return (
         <Layout>
@@ -304,29 +251,17 @@ function Page() {
                                 </div>
                             </div>
                         </div>
-                        {/* {userOtherData?.International === true ? (
-                            <div
-                                onClick={getEditOtp}
-                                className="absolute top-2 right-2 text-center "
-                            >
-                                <div className="rounded-full flex justify-center items-center size-7 bg-blue-500 text-xl text-center text-white ">
-                                    <GrFormEdit />
-                                </div>
-                                <p className="capitalize text-[0.5rem] text-white font-bold">
-                                    edit
-                                </p>
+                        <div
+                            onClick={getEditOtp}
+                            className="absolute top-2 right-2 text-center "
+                        >
+                            <div className="rounded-full relative flex justify-center items-center size-7 bg-blue-500 text-xl text-center text-white ">
+                                <GrFormEdit />
                             </div>
-                        ) : (
-                            <div className="absolute top-2 right-2 text-center ">
-                                <div className="rounded-full relative flex justify-center items-center size-7 bg-blue-500 text-xl text-center text-white ">
-                                    <GrFormEdit />
-                                    <Authenticate callback={editBankings} />
-                                </div>
-                                <p className="capitalize text-[0.5rem] text-white font-bold">
-                                    edit
-                                </p>
-                            </div>
-                        )} */}
+                            <p className="capitalize text-[0.5rem] text-white font-bold">
+                                edit
+                            </p>
+                        </div>
 
                         <div
                             onClick={() => {
@@ -621,7 +556,7 @@ function Page() {
                                 </>
                             )}
 
-                            {/* <div className="mt-5">
+                            <div className="mt-5">
                                 <div className="capitalize font-semibold text-[0.6rem]">
                                     <span className="w-[50%]">
                                         verify with one-time password
@@ -671,7 +606,7 @@ function Page() {
                                         )}
                                     </div>
                                 </div>
-                            </div>  */}
+                            </div>
                         </div>
 
                         <div className="px-2 py-1">
@@ -788,6 +723,8 @@ function VerificationPopup({
                 getAlert("success", "otp verified");
                 toggleVerification(false);
                 getBankEdit(true);
+            } else {
+                getAlert("opps", "something went wrong");
             }
         } catch (error) {
             getAlert("opps", "invalid otp");

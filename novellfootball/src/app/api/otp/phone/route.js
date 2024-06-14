@@ -24,6 +24,7 @@ export async function GET(request) {
             throw new CustomError(705, "invalid phone number", {});
         let phoneNumber = user?.PhoneNumber || "";
         // phoneNumber = phoneNumber.slice(3);
+        console.log(phoneNumber);
         let otp = Math.ceil(Math.random() * 9000 + 999);
         let res = await sendPhoneOtp(phoneNumber, otp);
 
@@ -38,7 +39,6 @@ export async function GET(request) {
             });
             return response;
         }
-        console.log(res);
         return NextResponse.json({
             status: 705,
             message:
@@ -60,7 +60,8 @@ export async function POST(request) {
         await connect();
         let { Phone } = await request.json();
         let phoneNumber = Phone || "";
-        phoneNumber = phoneNumber.slice(2);
+        // phoneNumber = phoneNumber.slice(2);
+        console.log(phoneNumber);
         let otp = Math.ceil(Math.random() * 9000 + 999);
         let res = await sendPhoneOtp(phoneNumber, otp);
         if (res === true) {
@@ -107,7 +108,7 @@ export async function PUT(request) {
             );
 
         let otp = Math.ceil(Math.random() * 9000 + 999);
-        let res = await sendPhoneOtp(userExists?.PhoneNumber, otp);
+        let res = await sendPhoneOtp(`+91${userExists?.PhoneNumber}`, otp);
 
         // dev only;
         // let res = true;

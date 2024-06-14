@@ -125,11 +125,13 @@ const Login = () => {
                                             className="font-semibold text-slate-500 hover:text-slate-400"
                                         ></a>
                                         <a
-                                            // onClick={() =>
-                                            //     toggleVerification(true)
-                                            // }
+                                            onClick={() =>
+                                                toggleVerification(true)
+                                            }
                                             className="font-semibold text-slate-500 hover:text-slate-400"
-                                        ></a>
+                                        >
+                                            FORGOT PASSWORD
+                                        </a>
                                     </div>
                                 </div>
                             </motion.div>
