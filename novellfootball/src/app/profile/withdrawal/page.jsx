@@ -38,7 +38,7 @@ function Page() {
             .split("; ")
             .find((row) => row.startsWith("otp" + "="))
             ?.split("=")[1];
-
+        console.log(providedOtp, EnteredOtp);
         if (EnteredOtp === Number(providedOtp)) {
             setVerified(true);
             updating && updateEditBank(true);
@@ -93,7 +93,8 @@ function Page() {
     async function withdraw() {
         try {
             getAlert();
-            if (!isVerified) {
+            let verified = await verify();
+            if (!verified) {
                 getAlert("opps", "Incorrect otp.");
                 return;
             }
